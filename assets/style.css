@@ -1,0 +1,404 @@
+@font-face {
+    font-family: 'Gotham Medium'; 
+    src: url('Gotham Medium.otf');
+}
+
+*{
+  font-family: "Gotham Medium"!important;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+  background:white;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ffffff",endColorstr="#ff011d",GradientType=1);
+  background-position: center;
+  background-size: cover;
+  height: 100%;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.mantine-Navbar-root {
+  background: white;
+}
+
+#navbar-render-button {
+  color: #6cb7c4;
+  /* transition: all 1s; */
+}
+
+#navbar .mantine-Accordion-chevron {
+  color: black; 
+  display: none;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+.maindiv {
+  /* height: 70rem; */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+.legend .traces .legendtoggle {
+   display: none;
+}
+/* just for presentation: shows the default cursor insted of the text cursor */
+.legend .traces .legendtext {
+   cursor: default;
+}
+
+/* This creates a skinny side bar fixed to the left of the page */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 16rem;
+  padding: 2rem 1rem;
+  z-index: 1050;
+  transition: width 0.1s ease-in-out;
+}
+
+/* Keeps every category in the sidebar the same height on reveal */
+#navbar .mantine-Accordion-label { 
+  white-space: nowrap;
+  color: black;
+  font-size: medium;
+  text-decoration: underline 0.15em rgba(0, 0, 0, 0);
+  transition: text-decoration-color 10ms;
+}
+
+#navbar .mantine-Accordion-control:hover .mantine-Accordion-label{ 
+  /* color: white; */
+  text-decoration-color: black
+}
+
+#navbar .mantine-Accordion-control:hover { 
+  background-color: transparent;
+  /* color:white; */
+}
+
+/* make sure the contents of the navlink don't wrap when navbar collapses */
+.sidebar .nav-link {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  color: white;
+}
+
+.nav-item {
+  white-space: nowrap;
+}
+
+
+#navbar .mantine-Accordion-item {
+  border-bottom: none;
+}
+
+.nav-item > a{
+  color: #5c5e62;
+  font-size: small;
+}
+
+/* fix the width of the icons */
+.sidebar .nav-link i {
+  width: 1rem;
+}
+
+/* hide the navlink labels by default */
+.sidebar .nav-link span {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.1s ease-in-out;
+}
+
+/* container for the sidebar header. make sure the contents don't wrap when
+ * the sidebar is collapsed.
+ */
+.sidebar-header {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  overflow: hidden;
+  color: white;
+  white-space: nowrap;
+}
+
+/* position the header relative to the logo and hide by default */
+.sidebar-header h4 {
+  opacity: 0;
+  margin-left: 1rem;
+  margin-bottom: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+
+/* position the content relative to the collapsed sidebar */
+.content {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  padding: 1rem 1rem;
+}
+
+.slicetext text{
+  font-weight: bolder;
+}
+
+.mantine-Paper-root:hover{
+  transform: scale(1.03);
+}
+
+.mantine-Paper-root{
+  transition: all .2s ease-in-out;
+}
+
+._dash-loading {
+  margin: auto;
+  color: transparent;
+  width: 0;
+  height: 0;
+  text-align: center;
+}
+
+/* ._dash-loading::after {
+  content: '';
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  color: black;
+  vertical-align: text-bottom;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: spinner-border 0.75s linear infinite;
+  animation: spinner-border 0.75s linear infinite;
+  margin-top: 2rem;
+} */
+
+.mantine-InputWrapper-label {
+  font-weight: bolder;
+}
+
+
+#overallContainer {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    gap: 5px;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+}
+
+#navPin {
+    width: 100%;
+    display: none;
+    justify-content: end;
+    padding-right: 3px;
+    padding-top: 3px;
+}
+
+#themeSwitchHolder label {
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+    #overallContainer {
+        flex-direction: column;
+    }
+
+    #mobileNav {
+        position: sticky;
+        top: 0px;
+        border-bottom: 1pt solid black;
+    }
+
+    #mobileMenu > div {
+        padding-right: 10px;
+        padding-left: 5px;
+        padding-top: 5px;
+    }
+
+    #mobileMenu {
+        position: absolute;
+    }
+}
+
+@media only screen and (min-width: 601px) and (max-width: 768px) {
+    #navbar {
+        width: 10rem;
+    }
+
+    #themeSwitchHolder > div {
+        justify-content: end;
+        padding-right: 5px;
+        padding-top: 5px;
+    }
+}
+
+@media (any-pointer: coarse) and (min-width: 769px) {
+    #navbar {
+        width: 12rem;
+    }
+
+    #themeSwitchHolder > div {
+        justify-content: end;
+        padding-right: 5px;
+        padding-top: 5px;
+    }
+}
+
+@media only screen and (min-width: 769px) and (any-pointer: fine) {
+    #navbar {
+        width: 12rem;
+    }
+
+    #themeSwitchHolder > div {
+        justify-content: end;
+        padding-right: 5px;
+        padding-top: 5px;
+    }
+
+    #navPin {
+        display: flex;
+    }
+
+    #navPin > div {
+        display: none;
+        position: absolute;
+        z-index: 50;
+        cursor: pointer;
+        margin-right: 2px;
+        padding: 1px;
+        border-radius: 3px;
+        background-color: silver;
+        border: 1px solid black;
+        color: black;
+    }
+
+    #navbar.collapsible #navPin > div {
+        background-color: #4682B4;
+        color: silver;
+    }
+
+    #navbar.collapsible {
+        width: 12rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s ease-out;
+    }
+
+    #navbar.collapsible .mantine-Accordion-content {
+        /* display: none; */
+        overflow: hidden;
+    }
+
+    #navbar.collapsible:hover .mantine-Accordion-content {
+        display: block;
+    }
+}
+
+/* restyle radio items */
+.radio-group .form-check {
+  padding-left: 0;
+}
+
+.radio-group .btn-group > .form-check:not(:last-child) > .btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.radio-group .btn-group > .form-check:not(:first-child) > .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+
+#davinci-front-image {
+    -webkit-animation: 0.5s ease 0s normal forwards 1 fadein;
+    animation: 0.5s ease 0s normal forwards 1 fadein;
+}
+
+@keyframes fadein{
+    0% { opacity:0; }
+    30% { opacity:0; }
+    100% { opacity:1; }
+}
+
+@-webkit-keyframes fadein{
+    0% { opacity:0; }
+    30% { opacity:0; }
+    100% { opacity:1; }
+}
+
+#labs-front-image {
+    -webkit-animation: 1s ease 0s normal forwards 1 fadein;
+    animation: 1s ease 0s normal forwards 1 fadein;
+}
+
+@keyframes fadein{
+    0% { opacity:0; }
+    80% { opacity:0; }
+    100% { opacity:1; }
+}
+
+@-webkit-keyframes fadein{
+    0% { opacity:0; }
+    66% { opacity:0; }
+    100% { opacity:1; }
+}
+
+#loading-form {
+    -webkit-animation: 1.5s ease 0s normal forwards 1 fadein;
+    animation: 1.5s ease 0s normal forwards 1 fadein;
+}
+
+@keyframes fadein{
+    0% { opacity:0; }
+    80% { opacity:0; }
+    100% { opacity:1; }
+}
+
+@-webkit-keyframes fadein{
+    0% { opacity:0; }
+    66% { opacity:0; }
+    100% { opacity:1; }
+}
+
+#navbar-render-button {
+    -webkit-animation: 1.5s ease 0s normal forwards 1 fadein;
+    animation: 1.5s ease 0s normal forwards 1 fadein;
+}
+
+@keyframes fadein{
+    0% { opacity:0; }
+    80% { opacity:0; }
+    100% { opacity:1; }
+}
+
+@-webkit-keyframes fadein{
+    0% { opacity:0; }
+    66% { opacity:0; }
+    100% { opacity:1; }
+}
+
+.my-2 {
+  display: none;
+}
+
+.display-3 {
+  color: black;
+}
