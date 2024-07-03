@@ -8,10 +8,10 @@ from davinci.dash.boilerplate import create_standard_layout, create_standard_cal
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from dash import Input, Output, State, html
-
+from functions import define_main_layout
 # Define your app UI here
 def render_layout():
-    return html.Div('App')
+    return define_main_layout()
 
 # Callbacks should be defined like so:
 # @app.callback(Output('id', 'attr'), Input('id', 'attr))
@@ -23,7 +23,7 @@ def render_layout():
 ### app_name will connect to relevant security groups.
 ### It does not necessarily need to match the url path specified in serving.py
 app.layout = create_standard_layout(use_loader=True)
-create_standard_callbacks(app, render_layout, app_name='test') # DEVELOPER TODO: update 'test'
+create_standard_callbacks(app, render_layout, app_name='Metrics_DashApp') # DEVELOPER TODO: update 'test'
 
 # For local development only. The app will
 # get called via gunicorn on the Ec2.
