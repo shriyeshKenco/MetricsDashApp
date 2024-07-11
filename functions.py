@@ -17,7 +17,9 @@ def define_main_layout():
 
 @app.callback(
     Output('data-table', 'data'),
-    Output('line-plot', 'figure'),
+    Output('created-plot', 'figure'),
+    Output('modified-plot', 'figure'),
+    Output('deleted-plot', 'figure'),
     Input('table-dropdown', 'value')
 )
 def main_callback(table_name):
@@ -27,5 +29,5 @@ def main_callback(table_name):
     if table_name is None:
         raise PreventUpdate
 
-    table_data, plot_figure = update_table_and_plot(table_name)
-    return table_data, plot_figure
+    table_data, created_figure, modified_figure, deleted_figure = update_table_and_plot(table_name)
+    return table_data, created_figure, modified_figure, deleted_figure

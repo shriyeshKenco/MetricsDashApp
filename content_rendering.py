@@ -4,7 +4,7 @@ import boto3
 import pandas as pd
 from boto3.dynamodb.conditions import Key
 import plotly.graph_objs as go
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Replace these imports with your actual imports
 from davinci.services.auth import get_secret
@@ -68,14 +68,19 @@ def render_main_layout():
                 {'name': 'TimeStamp', 'id': 'TimeStamp'},
                 {'name': 'CreatedRecords', 'id': 'CreatedRecords'},
                 {'name': 'ModifiedRecords', 'id': 'ModifiedRecords'},
-                {'name': 'DeletedRecords', 'id': 'DeletedRecords'}
+                {'name': 'DeletedRecords', 'id': 'DeletedRecords'},
+                {'name': 'TriggerAlert', 'id': 'TriggerAlert'}
             ],
             data=[],
             style_table={'overflowX': 'auto'},
             style_cell={'textAlign': 'left'},
         ),
 
-        dcc.Graph(id='line-plot')
+        html.Div(children=[
+            dcc.Graph(id='created-plot', style={'width': '48%', 'display': 'inline-block'}),
+            dcc.Graph(id='modified-plot', style={'width': '48%', 'display': 'inline-block'}),
+            dcc.Graph(id='deleted-plot', style={'width': '48%', 'display': 'inline-block', 'margin-top': '20px'})
+        ], style={'textAlign': 'center'})
     ], style={"margin": "20px 0 20px 5px"})
 
 
@@ -92,12 +97,13 @@ def render_table_list():
 def update_table_and_plot(table_name):
     '''
     Fetch last 8 entries from DynamoDB for the selected table and update the table and plot
+    Aggregate the metrics every 3 hours
     '''
     if table_name:
         response = table.query(
             KeyConditionExpression=Key('TableName').eq(table_name),
             ScanIndexForward=False,  # Descending order
-            Limit=8
+            Limit=24  # Fetch more entries to ensure proper 3-hour aggregation
         )
         items = response['Items']
         items.sort(key=lambda x: x['TimeStamp'], reverse=False)  # Sort by TimeStamp ascending
@@ -105,34 +111,64 @@ def update_table_and_plot(table_name):
         df = pd.DataFrame(items)
         df['TimeStamp'] = pd.to_datetime(df['TimeStamp'], format='%Y%m%d%H%M')
 
-        figure = {
+        # Aggregate every 3 hours
+        df.set_index('TimeStamp', inplace=True)
+        df_resampled = df.resample('3H').sum()
+        df_resampled = df_resampled.tail(8).reset_index()  # Get last 8 aggregated entries
+
+        created_figure = {
             'data': [
                 go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['CreatedRecords'],
+                    x=df_resampled['TimeStamp'],
+                    y=df_resampled['CreatedRecords'],
                     mode='lines+markers',
                     name='Created Records'
-                ),
+                )
+            ],
+            'layout': go.Layout(
+                title=f'{table_name} - Created Records Over Time',
+                xaxis={'title': 'TimeStamp'},
+                yaxis={'title': 'Created Records'},
+                margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                hovermode='closest'
+            )
+        }
+
+        modified_figure = {
+            'data': [
                 go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['ModifiedRecords'],
+                    x=df_resampled['TimeStamp'],
+                    y=df_resampled['ModifiedRecords'],
                     mode='lines+markers',
                     name='Modified Records'
-                ),
+                )
+            ],
+            'layout': go.Layout(
+                title=f'{table_name} - Modified Records Over Time',
+                xaxis={'title': 'TimeStamp'},
+                yaxis={'title': 'Modified Records'},
+                margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                hovermode='closest'
+            )
+        }
+
+        deleted_figure = {
+            'data': [
                 go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['DeletedRecords'],
+                    x=df_resampled['TimeStamp'],
+                    y=df_resampled['DeletedRecords'],
                     mode='lines+markers',
                     name='Deleted Records'
                 )
             ],
             'layout': go.Layout(
-                title=f'{table_name} Records Over Time',
+                title=f'{table_name} - Deleted Records Over Time',
                 xaxis={'title': 'TimeStamp'},
-                yaxis={'title': 'Records'},
+                yaxis={'title': 'Deleted Records'},
                 margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
                 hovermode='closest'
             )
         }
-        return df.to_dict('records'), figure
-    return [], {}
+
+        return df_resampled.to_dict('records'), created_figure, modified_figure, deleted_figure
+    return [], {}, {}, {}
