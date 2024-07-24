@@ -103,7 +103,7 @@ def update_table_and_plot(table_name):
         response = table.query(
             KeyConditionExpression=Key('TableName').eq(table_name),
             ScanIndexForward=False,  # Descending order
-            Limit=24  # Fetch more entries to ensure proper 3-hour aggregation
+            Limit=240  # Fetch more entries to ensure proper 3-hour aggregation
         )
         items = response['Items']
         items.sort(key=lambda x: x['TimeStamp'], reverse=False)  # Sort by TimeStamp ascending
@@ -114,7 +114,7 @@ def update_table_and_plot(table_name):
         # Aggregate every 3 hours
         df.set_index('TimeStamp', inplace=True)
         df_resampled = df.resample('3H').sum()
-        df_resampled = df_resampled.tail(8).reset_index()  # Get last 8 aggregated entries
+        df_resampled = df_resampled.tail(80).reset_index()  # Get last 8 aggregated entries
 
         created_figure = {
             'data': [
