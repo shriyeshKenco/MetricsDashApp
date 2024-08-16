@@ -88,9 +88,21 @@ def render_table_list():
     '''
     Fetch unique table names from DynamoDB and create dropdown options
     '''
+    table_names = set()
     response = table.scan()
-    items = response['Items']
-    table_names = list(set(item['TableName'] for item in items))
+
+    while True:
+        items = response['Items']
+        table_names.update(item['TableName'] for item in items)
+
+        # Check if there's more data to fetch
+        if 'LastEvaluatedKey' in response:
+            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        else:
+            break
+
+    table_names = list(table_names)
+    print(f"Table names retrieved: {table_names}")  # Debugging print statement
     return [{'label': name, 'value': name} for name in table_names]
 
 
