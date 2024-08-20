@@ -20,14 +20,15 @@ def define_main_layout():
     Output('created-plot', 'figure'),
     Output('modified-plot', 'figure'),
     Output('deleted-plot', 'figure'),
-    Input('table-dropdown', 'value')
+    Input('table-dropdown', 'value'),
+    Input('granularity-toggle', 'value')  # New input for granularity
 )
-def main_callback(table_name):
+def main_callback(table_name, granularity):
     '''
-    Callback function to update the data table and plot based on the selected table name
+    Callback function to update the data table and plot based on the selected table name and granularity
     '''
     if table_name is None:
         raise PreventUpdate
 
-    table_data, created_figure, modified_figure, deleted_figure = update_table_and_plot(table_name)
+    table_data, created_figure, modified_figure, deleted_figure = update_table_and_plot(table_name, granularity)
     return table_data, created_figure, modified_figure, deleted_figure
