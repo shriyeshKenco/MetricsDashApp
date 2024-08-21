@@ -126,127 +126,272 @@ def update_table_and_plot(table_name, granularity='hourly'):
         df = pd.DataFrame(items)
         df['TimeStamp'] = pd.to_datetime(df['TimeStamp'], format='%Y%m%d%H%M')
 
-        # Create figures for Created, Modified, and Deleted records
-        created_figure = {
-            'data': [
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['CreatedRecords'],
-                    mode='lines',
-                    name='Created Records',
-                    line=dict(color='blue', width=2)
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourMeanCreatedRecords'],
-                    mode='lines',
-                    name='3-Hour Mean',
-                    line=dict(dash='dot', color='orange')
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourUpperBoundCreatedRecords'],
-                    mode='lines',
-                    name='Upper Bound',
-                    line=dict(dash='dot', color='green')
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourLowerBoundCreatedRecords'],
-                    mode='lines',
-                    name='Lower Bound',
-                    line=dict(dash='dot', color='red')
-                )
-            ],
-            'layout': go.Layout(
-                title=f'{table_name} - Created Records Over Time',
-                xaxis={'title': 'TimeStamp'},
-                yaxis={'title': 'Created Records'},
-                margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
-                hovermode='closest'
-            )
-        }
+        if granularity == '3hourly':
+            # Create 3-hour non-overlapping windows
+            df['Window'] = df['TimeStamp'].dt.floor('3H')
 
-        modified_figure = {
-            'data': [
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['ModifiedRecords'],
-                    mode='lines',
-                    name='Modified Records',
-                    line=dict(color='blue', width=2)
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourMeanModifiedRecords'],
-                    mode='lines',
-                    name='3-Hour Mean',
-                    line=dict(dash='dot', color='orange')
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourUpperBoundModifiedRecords'],
-                    mode='lines',
-                    name='Upper Bound',
-                    line=dict(dash='dot', color='green')
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourLowerBoundModifiedRecords'],
-                    mode='lines',
-                    name='Lower Bound',
-                    line=dict(dash='dot', color='red')
-                )
-            ],
-            'layout': go.Layout(
-                title=f'{table_name} - Modified Records Over Time',
-                xaxis={'title': 'TimeStamp'},
-                yaxis={'title': 'Modified Records'},
-                margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
-                hovermode='closest'
-            )
-        }
+            # Group by these 3-hour windows and aggregate the necessary columns
+            df_agg = df.groupby('Window').agg({
+                'CreatedRecords': 'sum',
+                'ModifiedRecords': 'sum',
+                'DeletedRecords': 'sum',
+                '3HourMeanCreatedRecords': 'sum',
+                '3HourLowerBoundCreatedRecords': 'sum',
+                '3HourUpperBoundCreatedRecords': 'sum',
+                '3HourMeanModifiedRecords': 'sum',
+                '3HourLowerBoundModifiedRecords': 'sum',
+                '3HourUpperBoundModifiedRecords': 'sum',
+                '3HourMeanDeletedRecords': 'sum',
+                '3HourLowerBoundDeletedRecords': 'sum',
+                '3HourUpperBoundDeletedRecords': 'sum',
+                'TriggerAlert': 'max'  # Use max to simulate "any True" logic
+            }).reset_index()
 
-        deleted_figure = {
-            'data': [
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['DeletedRecords'],
-                    mode='lines',
-                    name='Deleted Records',
-                    line=dict(color='blue', width=2)
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourMeanDeletedRecords'],
-                    mode='lines',
-                    name='3-Hour Mean',
-                    line=dict(dash='dot', color='orange')
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourUpperBoundDeletedRecords'],
-                    mode='lines',
-                    name='Upper Bound',
-                    line=dict(dash='dot', color='green')
-                ),
-                go.Scatter(
-                    x=df['TimeStamp'],
-                    y=df['3HourLowerBoundDeletedRecords'],
-                    mode='lines',
-                    name='Lower Bound',
-                    line=dict(dash='dot', color='red')
+            # Update plots and table
+            created_figure = {
+                'data': [
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['CreatedRecords'],
+                        mode='lines',
+                        name='Created Records',
+                        line=dict(color='blue', width=2)
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourMeanCreatedRecords'],
+                        mode='lines',
+                        name='3-Hour Mean',
+                        line=dict(dash='dot', color='orange')
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourUpperBoundCreatedRecords'],
+                        mode='lines',
+                        name='Upper Bound',
+                        line=dict(dash='dot', color='green')
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourLowerBoundCreatedRecords'],
+                        mode='lines',
+                        name='Lower Bound',
+                        line=dict(dash='dot', color='red')
+                    )
+                ],
+                'layout': go.Layout(
+                    title=f'{table_name} - Created Records (3-Hour Window)',
+                    xaxis={'title': 'TimeStamp'},
+                    yaxis={'title': 'Created Records'},
+                    margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                    hovermode='closest'
                 )
-            ],
-            'layout': go.Layout(
-                title=f'{table_name} - Deleted Records Over Time',
-                xaxis={'title': 'TimeStamp'},
-                yaxis={'title': 'Deleted Records'},
-                margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
-                hovermode='closest'
-            )
-        }
+            }
 
-        return df.to_dict('records'), created_figure, modified_figure, deleted_figure
+            modified_figure = {
+                'data': [
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['ModifiedRecords'],
+                        mode='lines',
+                        name='Modified Records',
+                        line=dict(color='blue', width=2)
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourMeanModifiedRecords'],
+                        mode='lines',
+                        name='3-Hour Mean',
+                        line=dict(dash='dot', color='orange')
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourUpperBoundModifiedRecords'],
+                        mode='lines',
+                        name='Upper Bound',
+                        line=dict(dash='dot', color='green')
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourLowerBoundModifiedRecords'],
+                        mode='lines',
+                        name='Lower Bound',
+                        line=dict(dash='dot', color='red')
+                    )
+                ],
+                'layout': go.Layout(
+                    title=f'{table_name} - Modified Records (3-Hour Window)',
+                    xaxis={'title': 'TimeStamp'},
+                    yaxis={'title': 'Modified Records'},
+                    margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                    hovermode='closest'
+                )
+            }
+
+            deleted_figure = {
+                'data': [
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['DeletedRecords'],
+                        mode='lines',
+                        name='Deleted Records',
+                        line=dict(color='blue', width=2)
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourMeanDeletedRecords'],
+                        mode='lines',
+                        name='3-Hour Mean',
+                        line=dict(dash='dot', color='orange')
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourUpperBoundDeletedRecords'],
+                        mode='lines',
+                        name='Upper Bound',
+                        line=dict(dash='dot', color='green')
+                    ),
+                    go.Scatter(
+                        x=df_agg['Window'],
+                        y=df_agg['3HourLowerBoundDeletedRecords'],
+                        mode='lines',
+                        name='Lower Bound',
+                        line=dict(dash='dot', color='red')
+                    )
+                ],
+                'layout': go.Layout(
+                    title=f'{table_name} - Deleted Records (3-Hour Window)',
+                    xaxis={'title': 'TimeStamp'},
+                    yaxis={'title': 'Deleted Records'},
+                    margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                    hovermode='closest'
+                )
+            }
+
+            return df_agg.to_dict('records'), created_figure, modified_figure, deleted_figure
+        else:
+            # Default hourly plot logic
+            created_figure = {
+                'data': [
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['CreatedRecords'],
+                        mode='lines',
+                        name='Created Records',
+                        line=dict(color='blue', width=2)
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourMeanCreatedRecords'],
+                        mode='lines',
+                        name='3-Hour Mean',
+                        line=dict(dash='dot', color='orange')
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourUpperBoundCreatedRecords'],
+                        mode='lines',
+                        name='Upper Bound',
+                        line=dict(dash='dot', color='green')
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourLowerBoundCreatedRecords'],
+                        mode='lines',
+                        name='Lower Bound',
+                        line=dict(dash='dot', color='red')
+                    )
+                ],
+                'layout': go.Layout(
+                    title=f'{table_name} - Created Records Over Time',
+                    xaxis={'title': 'TimeStamp'},
+                    yaxis={'title': 'Created Records'},
+                    margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                    hovermode='closest'
+                )
+            }
+
+            modified_figure = {
+                'data': [
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['ModifiedRecords'],
+                        mode='lines',
+                        name='Modified Records',
+                        line=dict(color='blue', width=2)
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourMeanModifiedRecords'],
+                        mode='lines',
+                        name='3-Hour Mean',
+                        line=dict(dash='dot', color='orange')
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourUpperBoundModifiedRecords'],
+                        mode='lines',
+                        name='Upper Bound',
+                        line=dict(dash='dot', color='green')
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourLowerBoundModifiedRecords'],
+                        mode='lines',
+                        name='Lower Bound',
+                        line=dict(dash='dot', color='red')
+                    )
+                ],
+                'layout': go.Layout(
+                    title=f'{table_name} - Modified Records Over Time',
+                    xaxis={'title': 'TimeStamp'},
+                    yaxis={'title': 'Modified Records'},
+                    margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                    hovermode='closest'
+                )
+            }
+
+            deleted_figure = {
+                'data': [
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['DeletedRecords'],
+                        mode='lines',
+                        name='Deleted Records',
+                        line=dict(color='blue', width=2)
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourMeanDeletedRecords'],
+                        mode='lines',
+                        name='3-Hour Mean',
+                        line=dict(dash='dot', color='orange')
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourUpperBoundDeletedRecords'],
+                        mode='lines',
+                        name='Upper Bound',
+                        line=dict(dash='dot', color='green')
+                    ),
+                    go.Scatter(
+                        x=df['TimeStamp'],
+                        y=df['3HourLowerBoundDeletedRecords'],
+                        mode='lines',
+                        name='Lower Bound',
+                        line=dict(dash='dot', color='red')
+                    )
+                ],
+                'layout': go.Layout(
+                    title=f'{table_name} - Deleted Records Over Time',
+                    xaxis={'title': 'TimeStamp'},
+                    yaxis={'title': 'Deleted Records'},
+                    margin={'l': 40, 'b': 40, 't': 40, 'r': 0},
+                    hovermode='closest'
+                )
+            }
+
+            return df.to_dict('records'), created_figure, modified_figure, deleted_figure
 
     return [], {}, {}, {}
+
